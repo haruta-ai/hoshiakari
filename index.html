@@ -1,3 +1,98 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>星灯りの勇者 Ver.0.3α</title><link rel="stylesheet" href="style.css"></head><body>
-<main><section id="title" class="screen"><div class="panel"><small>Ver.0.3α</small><h1>星灯りの勇者</h1><p>もう一度、剣を取る夜。</p><button id="new">はじめから</button><button id="cont">つづきから</button></div></section>
-<section id="game" class="screen hidden"><header><span>星見村</span><span>目的：<b id="goal">村長に話を聞こう</b></span></header><div class="frame"><canvas id="cv" width="512" height="384"></canvas><div id="msg" class="msg hidden"><b id="sp"></b><p id="tx"></p><i>▼</i></div></div><div class="controls"><div class="pad"><button data-d="up">▲</button><button data-d="left">◀</button><button data-d="down">▼</button><button data-d="right">▶</button></div><button id="act" class="act">話す<br><small>決定</small></button></div><div class="bottom"><button id="save">セーブ</button><button id="back">タイトルへ</button></div></section></main><script src="game.js"></script></body></html>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#0b1026">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>星灯りの勇者</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="app" aria-live="polite">
+    <section id="intro-screen" class="screen active">
+      <div class="intro-sky" aria-hidden="true"><i class="intro-moon"></i><i class="intro-meteor"></i><div class="intro-land"><span></span></div><i class="intro-hero"></i></div>
+      <div class="intro-copy"><p id="intro-text">かつて、夜空には五つの星が輝いていた。</p></div>
+      <button id="begin-intro" class="menu-button primary">物語を始める</button>
+      <button id="skip-intro" class="skip-button">スキップ ▶</button>
+    </section>
+    <section id="ending-screen" class="screen">
+      <div class="ending-sky" aria-hidden="true"><div class="ending-stars"><i></i><i></i><i></i><i></i><i></i></div><div class="ending-horizon"></div><div class="ending-party"><i></i><i></i><i></i></div></div>
+      <div class="ending-copy"><p id="ending-line">五つの星は、ふたたび夜空へ。</p><h2>星灯りの勇者</h2><strong>FIN</strong></div>
+      <button id="skip-ending" class="skip-button">スキップ ▶</button>
+    </section>
+    <section id="title-screen" class="screen">
+      <div class="stars" aria-hidden="true"></div>
+      <div class="title-wrap">
+        <p class="eyebrow">A RETRO FANTASY RPG</p>
+        <h1>星灯りの勇者</h1>
+        <p class="subtitle">失われた五つの星をめぐる物語</p>
+        <nav class="title-menu" aria-label="タイトルメニュー">
+          <button id="new-game" class="menu-button primary">はじめから</button>
+          <button id="continue-game" class="menu-button">つづきから</button>
+          <button id="chapter-select" class="menu-button">章から遊ぶ</button>
+          <button id="open-help" class="menu-button">遊びかた</button>
+        </nav>
+        <p class="version">COMPLETE EDITION 1.2.1</p>
+      </div>
+    </section>
+
+    <section id="game-screen" class="screen">
+      <header class="game-header">
+        <div><strong id="area-name">星見村</strong><span id="chapter-label">第一章</span></div>
+        <button id="menu-toggle" class="small-button" aria-label="メニューを開く">☰ メニュー</button>
+      </header>
+      <div class="game-layout">
+        <div class="canvas-wrap">
+          <canvas id="game-canvas" width="640" height="480" aria-label="ゲーム画面"></canvas>
+          <div id="toast" role="status"></div>
+        </div>
+        <aside class="status-panel" aria-label="勇者の状態">
+          <div class="hero-line"><span class="hero-icon">★</span><div><strong id="hero-name">アステル</strong><small id="hero-level">Lv 1</small></div></div>
+          <div class="meter-row"><span>HP</span><div class="meter"><i id="hp-bar"></i></div><b id="hp-text">30/30</b></div>
+          <div class="meter-row"><span>MP</span><div class="meter mp"><i id="mp-bar"></i></div><b id="mp-text">10/10</b></div>
+          <div class="stats-grid"><span>攻撃 <b id="atk-text">7</b></span><span>守備 <b id="def-text">3</b></span><span>星貨 <b id="gold-text">0</b></span><span>EXP <b id="exp-text">0</b></span></div>
+          <div class="quest-box"><small>いまの目的　<span id="quest-time">目安 3分</span></small><p id="quest-text">村長に話を聞こう</p><small id="side-quest">寄り道：星のしずく 0/3</small></div>
+        </aside>
+      </div>
+      <div id="message-box" class="message-box hidden" role="dialog" aria-modal="true">
+        <strong id="speaker"></strong><p id="message-text"></p><span>▼</span>
+      </div>
+      <div class="mobile-controls" aria-label="タッチ操作">
+        <div class="dpad">
+          <button data-key="up" aria-label="上">▲</button><button data-key="left" aria-label="左">◀</button>
+          <button class="action" data-action="confirm" aria-label="決定">決定</button>
+          <button data-key="down" aria-label="下">▼</button><button data-key="right" aria-label="右">▶</button>
+        </div>
+        <div class="action-pad"><button data-action="save">セーブ</button><button data-action="settings">設定</button></div>
+      </div>
+    </section>
+
+    <section id="battle-screen" class="screen">
+      <div class="battle-stage"><div id="battle-bg"></div><div id="enemy-sprite" aria-hidden="true"></div><h2 id="enemy-name"></h2><div class="enemy-meter"><i id="enemy-hp-bar"></i></div></div>
+      <div class="battle-ui">
+        <div class="battle-status"><strong>アステル <span id="battle-level">Lv 1</span></strong><p>HP <span id="battle-hp"></span>　MP <span id="battle-mp"></span></p></div>
+        <div id="battle-log" class="battle-log">魔物が現れた！</div>
+        <div id="battle-actions" class="battle-actions">
+          <button data-command="attack">たたかう</button><button data-command="star">星の技</button>
+          <button data-command="item">どうぐ</button><button data-command="guard">まもる</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="choice-box" class="choice-box hidden"></div>
+
+  <dialog id="main-menu" class="panel-dialog">
+    <div class="dialog-title"><h2>旅のメニュー</h2><button data-close>×</button></div>
+    <div class="tabs"><button data-tab="status" class="active">状態</button><button data-tab="items">どうぐ</button><button data-tab="records">記録</button><button data-tab="settings">設定</button></div>
+    <div id="menu-content"></div>
+  </dialog>
+  <dialog id="modal" class="panel-dialog compact"><div id="modal-content"></div></dialog>
+  <noscript>このゲームを遊ぶにはJavaScriptを有効にしてください。</noscript>
+  <script src="game.js"></script>
+</body>
+</html>
